@@ -1,0 +1,126 @@
+<script>const log = console.log;</script>
+
+## 기존과 달라진 ES6에서의 순회
+- for i++
+- for of
+
+<script>
+    const list = [1, 2, 3]; // 기존 방식의 순회 (구체적으로 명령적인 방식)
+    for (var i = 0; i < list.length; i++) {
+        log(list[i]);
+    }
+    const str = 'abc'; // 기존 방식의 유사 배열의 순회
+    for (var i = 0; i < str.length; i++) {
+        log(str[i]);
+    }
+    // 변경된 list와 유사배열의 순회 방식 (간결한 선언적 방식)
+    for (const a of list) {
+        log(a);
+    }
+    for (const a of str) {
+        log(a);
+    }
+</script>
+
+### Array를 통해 알아보기
+
+<script>
+    // for of의 순회는 기존 es5에서 사용하는 로직을 그대로 사용하는가?
+    // arr은 arr[i]로 조회가 되지만, set이나 map은 index로 조회할 수 없으므로 
+    // 동일한 로직이라 할 수 없다.
+    log('Arr ----------');
+    const arr = [1, 2, 3];
+    log(arr[Symbol.iterator]); // 함수가 들어있다(set, map도 동일), 해당 함수를 null로 치환하면
+    // 이터러블이 아니라는 에러문과 함께 for of문이 동작하지 않는다
+    for (const a of arr) log(a);
+
+    let iter1 = arr[Symbol.iterator]();
+    iter1.next();
+    for (const a of iter1) log(a); // return 2, 3
+</script>
+
+### Set를 통해 알아보기
+
+<script>
+    log('Set ----------');
+    const set = new Set([1, 2, 3]);
+    for (const a of set) log(a);
+</script>
+
+### Map를 통해 알아보기
+
+<script>
+    log('Map ----------');
+    const map = new Map([['a', 1], ['b', 2], ['c', 3]]);
+    for (const a of map) log(a);
+    const keys = map.keys(); // return MapIterator {'a', 'b', 'c'}
+    for (const a of keys) log(a); // return a, b, c
+    for (const a of map.values()) log(a); // return 1, 2, 3
+    for (const a of map.entries()) log(a); // return ['a', 1], ['b', 2], ['c', 3]
+    // map = iterable, map.keys(), map.values(), map.entries() = return iterable
+</script>
+
+## 이터러블/이터레이터 프로토콜
+- 이터러블: 이터레이터를 리턴하는 [Symbol.iterator]() 를 가진 값
+<!-- let iterator = arr[Symbol.iterator]() -->
+- 이터레이터: { value, done } 객체를 리턴하는 next() 를 가진 값
+<!-- iterator.next() // return { value: n,  done: boolean } -->
+- 이터러블/이터레이터 프로토콜: 이터러블을 for...of, 전개 연산자 등과 함께 동작하도록한 규약
+
+### 사용자 정의 이터러블을 통해 알아보기
+
+<script>
+    const iterable = {
+        [Symbol.iterator]() {
+            let i = 3;
+            return {
+                next() {
+                    return i == 0 ? { done: true } : { value: i--, done: false };
+                }
+            }
+        }
+    }
+
+    let iterator = iterable[Symbol.iterator]();
+    // log(iterator.next());
+    // log(iterator.next());
+    // log(iterator.next());
+    // log(iterator.next());
+
+    for (const a of iterable) log(a); // next 한 값 포함하여 평가 됨
+    // 잘 구현된(well formed) iterable은 반환된 이터레이터도 자신을 리턴하는 이터러블이다
+    // 이를 통해 next를 쓰고 순회를 돌면 next 이후 부터 순회를 돌 수 있다
+
+    const wellFormedIterable = {
+        [Symbol.iterator]() {
+            let i = 3;
+            return {
+                next() {
+                    return i == 0 ? { done: true } : { value: i--, done: false };
+                },
+                [Symbol.iterator]() { return this; }
+            }
+        }
+    }
+
+    let iterator2 = wellFormedIterable[Symbol.iterator]();
+    iterator2.next();
+    for (const a of iterator2) log(a); // next한 값은 건너뀌고 평가 됨
+
+    for (const a of document.querySelectorAll('*')) log(a);
+    // web api도 iterable/iterator protocol을 따른다
+    const all = document.querySelectorAll('*');
+    let iterator3 = all[Symbol.iterator]();
+    log(iterator3.next());
+    log(iterator3.next());
+    log(iterator3.next());
+</script>
+
+## 전개 연산자
+
+<script>
+    console.clear();
+    const a = [1, 2];
+    // a[Symbol.iterator] = null;
+    log([...a, ...arr, ...set, ...map.values(), ...map.keys()]);
+</script>
