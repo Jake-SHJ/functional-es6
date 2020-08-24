@@ -1,0 +1,45 @@
+<script>const log = console.log;</script>
+
+<script>
+    log("초기 odds 함수 결과");
+
+    function* odds(l) {
+        for (let i = 0; i < l; i++) {
+            if (i % 2) yield i;
+        }
+    }
+
+    for (const a of odds(15)) log(a);
+
+    log("infinity 함수 추가 결과");
+
+    function* infinity(i = 0) {
+        while (true) yield i++;
+    }
+
+    function* odds2(l) {
+        for (const a of infinity(1)) {
+            if (a % 2) yield a;
+            if (a == l) return;
+        }
+    }
+
+    for (const a of odds2(15)) log(a);
+
+    log("limit 함수 추가 결과");
+
+    function* limit(l, iter) {
+        for (const a of iter) {
+            yield a;
+            if (a == l) return;
+        }
+    }
+
+    function* odds3(l) {
+        for (const a of limit(l, infinity(1))) {
+            if (a % 2) yield a;
+        }
+    }
+
+    for (const a of odds3(15)) log(a);
+</script>
