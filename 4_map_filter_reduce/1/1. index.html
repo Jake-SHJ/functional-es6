@@ -10,15 +10,62 @@
   ];
 </script>
 
-
 # map
 
 <script>
+  const map = (f, iter) => {
+    let res = [];
+    for (const a of iter) {
+      res.push(f(a));
+    }
+    return res;
+  }
+  //iterable protocol만 따른다면 모두 사용가능한 map 함수
+
+  // let names = [];
+  // for (const p of products) {
+  //   names.push(p.name);
+  // }
+  // log(names);
+
+  log(map(p => p.name, products));
+
+  // let prices = [];
+  // for (const p of products) {
+  //   prices.push(p.price);
+  // }
+  // log(prices);
+
+  log(map(p => p.price, products));
 </script>
 
 # 이터러블 프로토콜을 따른 map의 다형성
 
 <script>
+  log([1, 2, 3].map(a => a + 1));
+
+  // log(document.querySelectorAll('*').map(el => el.nodeName)); 
+  // 동작하지 않는다. Array를 상속받은 객체가 아니기 때문이다.
+  log(map(el => el.nodeName, document.querySelectorAll('*')));
+  // iterable protocol을 따르고 있기 때문에 위에 선언된 map은 정상적으로 동작한다.
+  // const it = document.querySelectorAll('*')[Symbol.iterator]();
+  // log(it.next());
+  // log(it.next());
+  // log(it.next());
+  // log(it.next());
+  // log(it.next());
+
+  function* gen() {
+    yield 2;
+    yield 3;
+    yield 4;
+  };
+  log(map(a => a * a, gen()));
+
+  let m = new Map();
+  m.set('a', 10);
+  m.set('b', 20);
+  log(new Map(map(([k, a]) => [k, a * 2], m)));
 </script>
 
 
