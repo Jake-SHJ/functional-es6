@@ -20,10 +20,45 @@
 </script>
 
 # 코드를 값으로 다루어 표현력 높이기
+- 표현력을 높인다 => 읽기 쉽게 만든다
 
 ## go, pipe
 
 <script>
+  // 인자들을 받아서 하나로 축약하는 함수 (reduce), 즉시 값을 평가
+  const go = (...args) => reduce((a, f) => f(a), args);
+  // 함수를 리턴하는 함수
+  const pipe = (...fs) => (a) => go(a, ...fs);
+  // 4. pipe 개선, go 안에 go 처럼 작동하는 것을 만들었다.
+  const pipe2 = (f, ...fs) => (...as) => go(f(...as), ...fs);
+
+  go(
+    0,
+    a => a + 1,
+    a => a + 10,
+    a => a + 100,
+    log);
+
+  go(
+    add(0, 1), // 1. 0, a => a + 1 는 add(0, 1) 하나로 표현이 가능하다
+    a => a + 10,
+    a => a + 100,
+    log);
+
+  const f = pipe(
+    a => a + 1, // 2. 얘는 리턴값이 함수여야 해서 안됨
+    a => a + 10,
+    a => a + 100);
+
+  const f2 = pipe2(
+    (a, b) => a + b, // 3. 인자를 2개를 받을 수 있도록 만들어보자
+    a => a + 10,
+    a => a + 100
+  )
+
+  log(f(0));
+  log(f2(0, 1));
+
 </script>
 
 <script>
