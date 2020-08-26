@@ -58,18 +58,104 @@
 
   log(f(0));
   log(f2(0, 1));
-
+  console.clear()
 </script>
 
 <script>
+  // go를 통해 읽기 쉬운 코드를 작성, 기존 작성방식의 순서를 반대로 표현하기 때문
+  go(
+    products,
+    products => filter(p => p.price < 20000, products),
+    products => map(p => p.price, products),
+    prices => reduce(add, prices),
+    log);
+
+  console.clear();
 </script>
 
 ## curry
 
 <script>
+  // 함수를 값으로 다루면서, 원하는 시점에 평가 시키는 함수
+  // 필요한 만큼의 인자가 들어오면 받아둔 함수를 평가하도록 한다
+  // const curry = f => (a, ..._) => _.length ? f(a, ..._) : (..._) => f(a, ..._);
+  // 함수를 받아서 함수를 리턴, 인자가 2개 이상일때 받아둔 함수 즉시 실행,
+  // 2개 미만인 경우 함수를 다시 리턴한 후, 그 이후에 받은 인자를 합쳐서 함수를 실행
+
+  const mult = curry((a, b) => a * b);
+  log(mult(3)(2));
+
+  const mult3 = mult(3);
+  log(mult3(10));
+  log(mult3(5));
+  log(mult3(3));
+
+  go(
+    products,
+    products => filter(p => p.price < 20000)(products),
+    products => map(p => p.price)(products),
+    prices => reduce(add)(prices),
+    log);
+  // 각 함수에 curry를 씌워놔서 한개의 인자를 받은 이후 (products)를 넣어 실행 시켜줄 수 있다
+  // 함수를 부분적으로 실행할 수 있다는 것에 의의가 있음
+
+  // 이는 한번 더 축약이 가능해진다는 의미와 같다
+  go(
+    products,
+    filter(p => p.price < 20000),
+    map(p => p.price),
+    reduce(add),
+    log);
 </script>
 
 # 함수 조합으로 함수 만들기
 
 <script>
+  go(
+    products,
+    filter(p => p.price < 20000),
+    map(p => p.price),
+    reduce(add),
+    log);
+
+  go(
+    products,
+    filter(p => p.price >= 20000),
+    map(p => p.price),
+    reduce(add),
+    log);
+
+  // 코드 중복을 제거 하려면?
+
+  const total_price = pipe(
+    map(p => p.price),
+    reduce(add));
+  // pipe를 통해 중간 작업을 뜯어올 수 있다
+
+  go(
+    products,
+    filter(p => p.price < 20000),
+    total_price,
+    log);
+
+  go(
+    products,
+    filter(p => p.price >= 20000),
+    total_price,
+    log);
+
+  // 한번 더 나아가기
+  const base_total_price = predi => pipe(
+    filter(predi),
+    total_price);
+
+  go(
+    products,
+    base_total_price(p => p.price < 20000),
+    log);
+
+  go(
+    products,
+    base_total_price(p => p.price >= 20000),
+    log)
 </script>
