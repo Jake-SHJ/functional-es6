@@ -83,11 +83,56 @@
     log(total_quantity(products));
     log(total_price(products));
 
+    // sum의 활용 범위
     log(sum(u => u.age, [
       { age: 30 },
       { age: 20 },
       { age: 10 },
     ]))
+
+    console.clear();
+
+    document.querySelector('#cart').innerHTML = `
+      <table>
+        <tr>
+          <th></th>
+          <th>상품 이름</th>
+          <th>가격</th>
+          <th>수량</th>
+          <th>총 가격</th>
+        </tr>
+
+      <!-- ${go(products,
+      map(p => `
+          <tr>
+            <td>${p.name}</td>
+            <td>${p.price}</td>
+            <td><input type="number" value="${p.quantity}" /></td>
+            <td>${p.price * p.quantity}</td>
+          </tr>
+          `),
+      reduce(add))} -->
+
+      <!-- sum으로 치환 가능 -->
+      ${
+      go(products,
+        sum(p => `
+            <tr>
+              <td><input type="checkbox" ${p.is_selected ? "checked" : ""} /></td>
+              <td>${p.name}</td>
+              <td>${p.price}</td>
+              <td><input type="number" value="${p.quantity}" /></td>
+              <td>${p.price * p.quantity}</td>
+            </tr>
+          `))}
+        <tr>
+          <td></td>
+          <td colspan="2">합계</td>
+          <td>${total_quantity(filter(p => p.is_selected, products))}</td>
+          <td>${total_price(filter(p => p.is_selected, products))}</td>
+        </tr>
+      </table>
+    `;
   </script>
 
 </body>
