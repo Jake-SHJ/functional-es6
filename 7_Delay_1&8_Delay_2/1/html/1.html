@@ -55,9 +55,40 @@
 
   test('range', 10, () => reduce(add, range(1000000)));
   test('L.range', 10, () => reduce(add, L.range(1000000)));
+
+  console.clear();
 </script>
 
 ## take
 
 <script>
+  const take = curry((l, iter) => {
+    let res = [];
+    for (const a of iter) {
+      res.push(a);
+      if (res.length == l) return res;
+    }
+    return res;
+  }); // limit와 iterable을 인자로 받아서, iterable을 limit 만큼만 잘라서 반환하는 함수
+
+  console.time('');
+  // log(take(5, range(100000))); // curry 씌우기 전
+  go(
+    range(100000),
+    take(5),
+    reduce(add),
+    log
+  )
+  console.timeEnd('');
+  // array를 전부 평가하고 take가 실행되기 때문에 비효율적
+  console.time('');
+  // log(take(5, L.range(Infinity))); // curry 씌우기 전
+  go(
+    L.range(Infinity),
+    take(5),
+    reduce(add),
+    log
+  )
+  console.timeEnd('');
+  // L.range 상태에선 평가되지 않고 take가 순회해야만 평가되기 때문에 더 효율적
 </script>
