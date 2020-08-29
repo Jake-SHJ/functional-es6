@@ -185,6 +185,13 @@
     // 12
     // false
     // ...
+
+    // 지연 평가는 es6 이전에는 공식적인 지원이 아니었기때문에
+    // 해당하는 라이브러리 안에서만 구동하도록 했지만
+    // 현재는 공식적으로 지원되기 때문에
+    // 약속된 규약으로 쉽게 다룰 수 있게 되었음
+    // 어떤 라이브러리던지 이미 약속된 규약에 의해 작성되기 때문에 
+    // 조합성이 높고, 합성을 안전하게 할 수 있다
 </script>
 
 ### map, filter 계열 함수들이 가지는 결합 법칙
@@ -196,7 +203,6 @@
 [[mapping, mapping], [filtering, filtering], [mapping, mapping]]
 =
 [[mapping, filtering, mapping], [mapping, filtering, mapping]]
-
 
 ## 결과를 만드는 함수 reduce, take
 
