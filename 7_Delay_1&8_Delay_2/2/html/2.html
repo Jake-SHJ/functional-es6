@@ -29,17 +29,137 @@
     log(it.next());
     log(it.next());
     log(it.next());
+
+    console.clear();
 </script>
 
 
 ### range, map, filter, take, reduce 중첩 사용
 
 <script>
+    const range = l => {
+        let i = -1; // break point
+        let res = [];
+        while (++i < l) {
+            res.push(i); // break point
+        }
+        return res; // break point
+    };
+
+    const map = curry((f, iter) => {
+        let res = []; // break point
+        // 명령형으로 전환해 보자
+        iter = iter[Symbol.iterator](); // 여기서부터
+        let cur; // break point
+        while (!(cur = iter.next()).done) {
+            const a = cur.value;
+            // 여기까지가 for (const a of iter) 의 명령형, reduce만 조금 다르고 동일한 형태
+            res.push(f(a)); // break point
+        }
+        // for (const a of iter) {
+        //     res.push(f(a));
+        // }
+        return res; // break point
+    });
+
+    const filter = curry((f, iter) => {
+        let res = []; // break point
+        iter = iter[Symbol.iterator]();
+        let cur; // break point
+        while (!(cur = iter.next()).done) {
+            const a = cur.value;
+            if (f(a)) res.push(a); // break point
+        }
+        // for (const a of iter) {
+        //     if (f(a)) res.push(a);
+        // }
+        return res;
+    });
+
+    const take = curry((l, iter) => {
+        let res = []; // break point
+        iter = iter[Symbol.iterator]();
+        let cur; // break point
+        while (!(cur = iter.next()).done) {
+            const a = cur.value;
+            res.push(a); // break point
+            if (res.length == l) return res; // break point
+        }
+        // for (const a of iter) {
+        //     res.push(a);
+        //     if (res.length == l) return res;
+        // }
+        return res;
+    });
+
+    const reduce = curry((f, acc, iter) => {
+        if (!iter) {
+            iter = acc[Symbol.iterator]();
+            acc = iter.next().value;
+        } else {
+            iter = iter[Symbol.iterator]();
+        }
+        let cur;
+        while (!(cur = iter.next()).done) {
+            const a = cur.value;
+            acc = f(acc, a);
+        }
+        // for (const a of iter) {
+        //     acc = f(acc, a);
+        // }
+        return acc;
+    });
+
+    go(range(10),
+        map(n => n + 10),
+        filter(n => n % 2),
+        take(2),
+        log);
 </script>
 
 ### L.range, L.map, L.filter, take, reduce 중첩 사용
 
 <script>
+    L.range = function* (l) {
+        let i = -1;
+        while (++i < l) {
+            yield i;
+        }
+    };
+
+    L.map = curry(function* (f, iter) {
+        iter = iter[Symbol.iterator]();
+        let cur;
+        while (!(cur = iter.next()).done) {
+            const a = cur.value;
+            yield f(a);
+        }
+        // for (const a of iter) {
+        //     yield f(a);
+        // }
+    });
+
+    L.filter = curry(function* (f, iter) {
+        iter = iter[Symbol.iterator]();
+        let cur;
+        while (!(cur = iter.next()).done) {
+            const a = cur.value;
+            if (f(a)) {
+                yield a;
+            }
+        }
+        // for (const a of iter) {
+        //     if (f(a)) {
+        //         yield a;
+        //     }
+        // }
+    });
+
+    // go(L.range(10),
+    //     L.map(n => n + 10),
+    //     L.filter(n => n % 2),
+    //     take(2),
+    //     log);
 </script>
 
 ### map, filter 계열 함수들이 가지는 결합 법칙
