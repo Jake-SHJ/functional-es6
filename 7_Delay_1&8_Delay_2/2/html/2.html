@@ -115,24 +115,25 @@
         filter(n => n % 2),
         take(2),
         log);
+    // 위에서 부터 순차적으로 실행 된다
 </script>
 
 ### L.range, L.map, L.filter, take, reduce 중첩 사용
 
 <script>
     L.range = function* (l) {
-        let i = -1;
+        let i = -1; // break point
         while (++i < l) {
-            yield i;
+            yield i; // break point
         }
     };
 
     L.map = curry(function* (f, iter) {
-        iter = iter[Symbol.iterator]();
-        let cur;
+        iter = iter[Symbol.iterator](); // break point
+        let cur; // break point
         while (!(cur = iter.next()).done) {
             const a = cur.value;
-            yield f(a);
+            yield f(a); // break point
         }
         // for (const a of iter) {
         //     yield f(a);
@@ -140,12 +141,12 @@
     });
 
     L.filter = curry(function* (f, iter) {
-        iter = iter[Symbol.iterator]();
-        let cur;
+        iter = iter[Symbol.iterator](); // break point
+        let cur; // break point
         while (!(cur = iter.next()).done) {
             const a = cur.value;
-            if (f(a)) {
-                yield a;
+            if (f(a)) { // break point
+                yield a; // break point
             }
         }
         // for (const a of iter) {
@@ -155,11 +156,35 @@
         // }
     });
 
-    // go(L.range(10),
-    //     L.map(n => n + 10),
-    //     L.filter(n => n % 2),
-    //     take(2),
-    //     log);
+    go(L.range(10),
+        L.map(n => n + 10),
+        L.filter(n => n % 2),
+        take(2),
+        log);
+    // take 부터 실행 된다, L.range, L.map, L.filter에서 평가가 실행되지 않기 때문
+    // take의 while로 넘어가지 않고, 
+    // filter로 진입  => map 으로 진입 => range 진입 
+    // => range 평가 => map 평가 => filter 평가
+
+    // 가로로 평가 되는 것이 아닌 세로로 평가된다.
+
+    // 기존의 평가
+    // [0, 1, 2...]
+    // [10, 11, 12...]
+    // [11, 13, 15...]
+    // [11, 13]
+
+    // 지연 평가
+    // 0
+    // 10
+    // false
+    // 1
+    // 11
+    // true
+    // 2
+    // 12
+    // false
+    // ...
 </script>
 
 ### map, filter 계열 함수들이 가지는 결합 법칙
