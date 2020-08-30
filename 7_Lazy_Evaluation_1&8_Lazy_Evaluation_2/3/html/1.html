@@ -2,6 +2,81 @@
 <script>
   // ## L.map + take로 map 만들기
 
+  // L.map = curry(function* (f, iter) {
+  //   iter = iter[Symbol.iterator]();
+  //   let cur;
+  //   while (!(cur = iter.next()).done) {
+  //     const a = cur.value;
+  //     yield f(a);
+  //   }
+  // });
+
+  // L.map 복구(위의 코드는 break point 확인용)
+  L.map = curry(function* (f, iter) {
+    for (const a of iter) yield f(a);
+  });
+
+  // const map = curry((f, iter) => {
+  //   let res = [];
+  //   iter = iter[Symbol.iterator]();
+  //   let cur;
+  //   while (!(cur = iter.next()).done) {
+  //     const a = cur.value;
+  //     res.push(f(a));
+  //   }
+  //   return res;
+  // });
+
+  // const map = curry((f, iter) => go(
+  //   iter,
+  //   L.map(f),
+  //   take(Infinity) // 모든 length를 포괄할 수 있다
+  // ));
+
+  // const map = curry((f, iter) => go(
+  //   L.map(f, iter),
+  //   take(Infinity)
+  // ));
+
+  const takeAll = take(Infinity);
+
+  const map = curry(pipe(L.map, takeAll));
+
+  log(map(a => a + 10, L.range(4)));
+
   // ## L.filter + take로 filter 만들기
+
+  // L.filter = curry(function* (f, iter) {
+  //   iter = iter[Symbol.iterator]();
+  //   let cur;
+  //   while (!(cur = iter.next()).done) {
+  //     const a = cur.value;
+  //     if (f(a)) {
+  //       yield a;
+  //     }
+  //   }
+  // });
+
+  // L.filter 복구
+  L.filter = curry(function* (f, iter) {
+    for (const a of iter) {
+      if (f(a)) yield a;
+    }
+  });
+
+  // const filter = curry((f, iter) => {
+  //   let res = [];
+  //   iter = iter[Symbol.iterator]();
+  //   let cur;
+  //   while (!(cur = iter.next()).done) {
+  //     const a = cur.value;
+  //     if (f(a)) res.push(a);
+  //   }
+  //   return res;
+  // });
+
+  const filter = curry(pipe(L.filter, takeAll));
+
+  log(filter(a => a % 2, L.range(4)));
 
 </script>
