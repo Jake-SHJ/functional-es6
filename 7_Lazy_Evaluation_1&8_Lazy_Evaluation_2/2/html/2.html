@@ -192,6 +192,8 @@
     // 약속된 규약으로 쉽게 다룰 수 있게 되었음
     // 어떤 라이브러리던지 이미 약속된 규약에 의해 작성되기 때문에 
     // 조합성이 높고, 합성을 안전하게 할 수 있다
+
+    console.clear();
 </script>
 
 ### map, filter 계열 함수들이 가지는 결합 법칙
@@ -209,6 +211,21 @@
 ### reduce
 
 <script>
+    // const queryStr = obj => go(
+    //     obj,
+    //     Object.entries,
+    //     map(([k, v]) => `${k}=${v}`),
+    //     reduce((a, b) => `${a}&${b}`)
+    // );
+
+    // obj를 받아서 obj를 그대로 사용하기 때문에 pipe로 변경
+    const queryStr = pipe(
+        Object.entries,
+        map(([k, v]) => `${k}=${v}`),
+        reduce((a, b) => `${a}&${b}`)
+    );
+
+    log(queryStr({ limit: 10, offset: 10, type: 'notice' }));
 </script>
 
 ### take, find
