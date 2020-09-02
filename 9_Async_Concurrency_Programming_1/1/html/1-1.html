@@ -5,6 +5,36 @@
 ## 일급
 
 <script>
+  // callback pattern과 비동기의 차이
+  function add10(a, callback) {
+    setTimeout(() => callback(a + 10), 100);
+  }
+
+  var a = add10(5, res => {
+    add10(res, res => {
+      add10(res, res => {
+        log(res);
+      })
+    })
+  });
+  // 콜백 지옥이 펼쳐진다
+
+  log(a); // undefined
+
+  function add20(a) {
+    return new Promise(resolve => setTimeout(() => resolve(a + 20), 100));
+    // 값을 만들어서 리턴한다
+  }
+
+  var b = add20(5)
+    .then(add20)
+    .then(add20)
+    .then(log)
+  // 좀 더 타이핑 하기 쉽고, 읽기 편하다
+
+  log(b); // Promise를 리턴
+
+  // 가장 중요하고, 큰 차이점은 비동기 상황을 값으로 다룬다는 것이다 = 일급이다
 </script>
 
 ## 일급 활용
