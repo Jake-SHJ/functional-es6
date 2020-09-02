@@ -19,7 +19,7 @@
   });
   // 콜백 지옥이 펼쳐진다
 
-  log(a); // undefined
+  // log(a); // undefined
 
   function add20(a) {
     return new Promise(resolve => setTimeout(() => resolve(a + 20), 100));
@@ -32,14 +32,42 @@
     .then(log)
   // 좀 더 타이핑 하기 쉽고, 읽기 편하다
 
-  log(b); // Promise를 리턴
+  // log(b); // Promise를 리턴
 
-  // 가장 중요하고, 큰 차이점은 비동기 상황을 값으로 다룬다는 것이다 = 일급이다
+  // 가장 중요하고, 큰 차이점은 비동기 상황을 값으로 다룬다는 것이다 = 일급이다 => 다른 함수에 전달이 가능하다
 </script>
 
 ## 일급 활용
 
 <script>
+  // const go1 = (a, f) => f(a);
+  const add5 = a => a + 5;
+
+  // log(go1(10, add5)); // 동기적 상태
+  // log(go1(Promise.resolve(10), add5)); // [object Promise]5, 정상적인 연산을 할 수 없다
+
+  const delay100 = a => new Promise(resolve => setTimeout(() => resolve(a), 100));
+
+  // const go1 = (a, f) => a instanceof Promise ? a.then(f) : f(a);
+  // go1를 수정함으로써 동기, 비동기를 전부 커버한다
+
+  // log(go1(10, add5));
+  // log(go1(delay100(10), add5));
+  var r = go1(10, add5);
+  log(r); // 15
+
+  var r2 = go1(delay100(10), add5);
+  r2.then(log); // 15
+
+  // 완전히 같게 표현하려면
+
+  const n1 = 10;
+  go1(go1(n1, add5), log); // 15
+  log(go1(go1(n1, add5), log)); // undefined
+
+  const n2 = delay100(10);
+  go1(go1(n2, add5), log); // 15
+  log(go1(go1(n2, add5), log)); // Promise
 </script>
 
 ## Composition
