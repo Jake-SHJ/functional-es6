@@ -10,13 +10,13 @@
     setTimeout(() => callback(a + 10), 100);
   }
 
-  var a = add10(5, res => {
-    add10(res, res => {
-      add10(res, res => {
-        log(res);
-      })
-    })
-  });
+  // var a = add10(5, res => {
+  //   add10(res, res => {
+  //     add10(res, res => {
+  //       log(res);
+  //     })
+  //   })
+  // });
   // 콜백 지옥이 펼쳐진다
 
   // log(a); // undefined
@@ -26,10 +26,10 @@
     // 값을 만들어서 리턴한다
   }
 
-  var b = add20(5)
-    .then(add20)
-    .then(add20)
-    .then(log)
+  // var b = add20(5)
+  //   .then(add20)
+  //   .then(add20)
+  //   .then(log)
   // 좀 더 타이핑 하기 쉽고, 읽기 편하다
 
   // log(b); // Promise를 리턴
@@ -68,11 +68,41 @@
   const n2 = delay100(10);
   go1(go1(n2, add5), log); // 15
   log(go1(go1(n2, add5), log)); // Promise
+
+  console.clear();
 </script>
 
 ## Composition
 
 <script type="module">
+  // 함수 합성 관점에서의 Promise, 합수 함성을 안전하게 할 수 있는 모나드
+  // f . g
+  // f(g(x))
+  // 함수 합성 시 상황에 따라 안전하게 합성할 수 있게 하기 위해 모나드라는 개념이 있음
+  // 구현체 중 비동기 상황을 안전하게 합성하는 것이 Promise
+
+  // js는 동적 타입 언어이기 때문에 모나드라는 개념을 직접적으로 사용할 수는 없음
+  const g = a => a + 1;
+  const f = a => a * a;
+
+  log(f(g(1)));
+  log(f(g())); // NaN, error 혹은 비정상적인 값의 발생, 안전하게 합성되지 않음
+
+  // container ([]) 를 사용
+  log([1].map(g).map(f)); // [4], but, 실제 사용자에게는 array를 보여줄 일이 없다
+  [1].map(g).map(f).forEach(r => log(r)); // 따라서 다음과 같이 표현, forEach를 통해 외부 세계에 효과 발현
+  [].map(g).map(f).forEach(r => log(r)); // 빈 값이면 효과를 일으키지 않음
+  [1, 2, 3].map(g).filter(a => a % 2).map(f).forEach(r => log(r));
+
+  // [1].map(g).map(f).forEach(r => log(r)); = Array.of(1).map(g).map(f).forEach(r => log(r));
+
+  // Promise는 어떤 함수를 합성하는 함수인가?
+  Promise.resolve(2).then(g).then(f).then(r => log(r)); // map 대신 then을 썼을 뿐
+  Promise.resolve().then(g).then(f).then(r => log(r));
+  // NaN, 용도가 다름, 값이 있거나 없거나가 중점이 아닌 비동기 상황(대기가 일어난 상황)에서의 안전한 합성이 목표다
+  new Promise(resolve =>
+    setTimeout(() => resolve(2), 100)
+  ).then(g).then(f).then(r => log(r)); // g 함수를 합성하는 시점을 안전하게 한다!
 </script>
 
 ## Kleisli Composition
