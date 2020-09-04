@@ -5,25 +5,25 @@ const curry = f =>
 
 const isIterable = a => a && a[Symbol.iterator];
 
-const go1 = (a, f) => a instanceof Promise ? a.then(f) : f(a);
+// const go1 = (a, f) => a instanceof Promise ? a.then(f) : f(a);
 
-const reduce = curry((f, acc, iter) => {
-  if (!iter) {
-    iter = acc[Symbol.iterator]();
-    acc = iter.next().value;
-  } else {
-    iter = iter[Symbol.iterator]();
-  }
-  return go1(acc, function recur(acc) {
-    let cur;
-    while (!(cur = iter.next()).done) {
-      const a = cur.value;
-      acc = f(acc, a);
-      if (acc instanceof Promise) return acc.then(recur);
-    }
-    return acc;
-  });
-});
+// const reduce = curry((f, acc, iter) => {
+//   if (!iter) {
+//     iter = acc[Symbol.iterator]();
+//     acc = iter.next().value;
+//   } else {
+//     iter = iter[Symbol.iterator]();
+//   }
+//   return go1(acc, function recur(acc) {
+//     let cur;
+//     while (!(cur = iter.next()).done) {
+//       const a = cur.value;
+//       acc = f(acc, a);
+//       if (acc instanceof Promise) return acc.then(recur);
+//     }
+//     return acc;
+//   });
+// });
 
 const go = (...args) => reduce((a, f) => f(a), args);
 
