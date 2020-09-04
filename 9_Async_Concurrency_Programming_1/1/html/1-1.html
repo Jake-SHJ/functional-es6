@@ -74,7 +74,7 @@
 
 ## Composition
 
-<script type="module">
+<script>
   // 함수 합성 관점에서의 Promise, 합수 함성을 안전하게 할 수 있는 모나드
   // f . g
   // f(g(x))
@@ -82,8 +82,8 @@
   // 구현체 중 비동기 상황을 안전하게 합성하는 것이 Promise
 
   // js는 동적 타입 언어이기 때문에 모나드라는 개념을 직접적으로 사용할 수는 없음
-  const g = a => a + 1;
-  const f = a => a * a;
+  // const g = a => a + 1;
+  // const f = a => a * a;
 
   log(f(g(1)));
   log(f(g())); // NaN, error 혹은 비정상적인 값의 발생, 안전하게 합성되지 않음
@@ -105,7 +105,44 @@
   ).then(g).then(f).then(r => log(r)); // g 함수를 합성하는 시점을 안전하게 한다!
 </script>
 
-## Kleisli Composition
+## Kleisli Composition (클레이슬리) => 오류가 있을 수 있는 상황에서 함수 합성을 안전하게 하는 방법
 
 <script>
+  // f . g
+  // f(g(x)) = f(g(x))
+  // f(g(x)) = g(x)
+
+  var users = [
+    { id: 1, name: 'aa' },
+    { id: 2, name: 'bb' },
+    { id: 3, name: 'cc' },
+  ];
+
+  // const getUserById = id =>
+  //   find(u => u.id == id, users);
+
+  // 개선
+
+  const getUserById = id =>
+    find(u => u.id == id, users) || Promise.reject('없어요!');
+
+
+  const f = ({ name }) => name;
+  const g = getUserById;
+  // 각각의 코드에는 문제가 없지만, 두 함수를 합성한 상황에서는 위험한 상황이 생길 수 있음
+
+  // const fg = id => f(g(id));
+
+  // const r = fg(2);
+  // log(r);
+
+  // users.pop();
+  // users.pop(); 
+  // error의 원인, 상황에 따라 error가 발생할 수 있다
+
+  // const r2 = fg(2); // error 발생
+
+  const fg = id => Promise.resolve(id).then(g).then(f).catch(a => a);
+
+  fg(2).then(log);
 </script>
