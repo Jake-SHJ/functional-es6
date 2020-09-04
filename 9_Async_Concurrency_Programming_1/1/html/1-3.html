@@ -3,4 +3,11 @@
 ## promise.then의 중요한 규칙
 
 <script>
+    Promise.resolve(Promise.resolve(Promise.resolve(1))).then(function (a) {
+        log(a);
+    });
+    // 한 번의 then으로 중첩된 Promise에서도 결과를 가져올 수 있음
+    // 몇 번의 중첩에도 then을 이용하면 결과를 한 번에 가져올 수 있다
+
+    new Promise(resolve => resolve(new Promise(resolve => resolve(1)))).then(log);
 </script>
