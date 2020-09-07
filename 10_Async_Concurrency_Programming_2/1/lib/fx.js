@@ -37,8 +37,12 @@ const take = curry((l, iter) => {
     while (!(cur = iter.next()).done) {
       const a = cur.value;
       // a가 pending 되어있는 promise 이므로
-      if (a instanceof Promise)
-        return a.then((a) => ((res.push(a), res).length == l ? res : recur()));
+      if (a instanceof Promise) {
+        return a
+          .then((a) => ((res.push(a), res).length == l ? res : recur()))
+          .catch((e) => (e == nop ? recur() : Promise.reject(e)));
+        // filter가 던진 nop에러면 계속 작업을 진행하고, 실제 다른 에러면 다시 reject
+      }
       res.push(a);
       if (res.length == l) return res;
     }
@@ -61,9 +65,15 @@ L.map = curry(function* (f, iter) {
   }
 });
 
+const nop = Symbol("nop");
+
 L.filter = curry(function* (f, iter) {
   for (const a of iter) {
-    if (f(a)) yield a;
+    const b = go1(a, f); // 동기적 상황에서만 정상동작
+    if (b instanceof Promise)
+      yield b.then((b) => (b ? a : Promise.reject(nop)));
+    // take에서 catch
+    else if (b) yield a;
   }
 });
 
