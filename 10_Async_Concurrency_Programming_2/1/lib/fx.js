@@ -32,13 +32,18 @@ const pipe = (f, ...fs) => (...as) => go(f(...as), ...fs);
 const take = curry((l, iter) => {
   let res = [];
   iter = iter[Symbol.iterator]();
-  let cur;
-  while (!(cur = iter.next()).done) {
-    const a = cur.value;
-    res.push(a);
-    if (res.length == l) return res;
-  }
-  return res;
+  return (function recur() {
+    let cur;
+    while (!(cur = iter.next()).done) {
+      const a = cur.value;
+      // a가 pending 되어있는 promise 이므로
+      if (a instanceof Promise)
+        return a.then((a) => ((res.push(a), res).length == l ? res : recur()));
+      res.push(a);
+      if (res.length == l) return res;
+    }
+    return res;
+  })();
 });
 
 const takeAll = take(Infinity);
@@ -52,7 +57,7 @@ L.range = function* (l) {
 
 L.map = curry(function* (f, iter) {
   for (const a of iter) {
-    yield f(a);
+    yield go1(a, f); // go1이 Promise에 맞춰 수정되어 있으므로 해당 로직 적용
   }
 });
 
