@@ -47,29 +47,37 @@
 ## Kleisli Composition - L.filter, filter, nop, take
 
 <script>
-  go(
-    [1, 2, 3, 4, 5, 6],
-    L.map((a) => Promise.resolve(a * a)),
-    // L.map((a) => a * a);
-    L.filter((a) => {
-      log(a);
-      return a % 2;
-    }),
-    // L.filter에서 reject nop이 일어났기 때문에 이후의
-    // 다른 함수에게 인자 전달 없이 바로 다음 순서(take 2번으로)로 넘어간다
-    // filter 함수는 L.filter와 takeAll로 구현되어 있으므로
-    // L.filter의 수정만으로 똑같은 로직이 적용된다
-    L.map((a) => {
-      log(a);
-      return a * a;
-    }),
-    take(4),
-    log
-  );
+  //   go(
+  //     [1, 2, 3, 4, 5, 6],
+  //     L.map((a) => Promise.resolve(a * a)),
+  //     // L.map((a) => a * a);
+  //     L.filter((a) => {
+  //       log(a);
+  //       return a % 2;
+  //     }),
+  //     // L.filter에서 reject nop이 일어났기 때문에 이후의
+  //     // 다른 함수에게 인자 전달 없이 바로 다음 순서(take 2번으로)로 넘어간다
+  //     // filter 함수는 L.filter와 takeAll로 구현되어 있으므로
+  //     // L.filter의 수정만으로 똑같은 로직이 적용된다
+  //     L.map((a) => {
+  //       log(a);
+  //       return a * a;
+  //     }),
+  //     take(4),
+  //     log
+  //   );
 </script>
 
 ## reduce에서 nop 지원
 
-<script></script>
+<script>
+  go(
+    [1, 2, 3, 4, 5],
+    L.map((a) => Promise.resolve(a * a)),
+    L.filter((a) => Promise.resolve(a % 2)),
+    reduce(add),
+    log
+  );
+</script>
 
 <script></script>
