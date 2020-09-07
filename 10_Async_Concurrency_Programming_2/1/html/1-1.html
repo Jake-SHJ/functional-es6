@@ -71,13 +71,29 @@
 ## reduce에서 nop 지원
 
 <script>
-  go(
-    [1, 2, 3, 4, 5],
-    L.map((a) => Promise.resolve(a * a)),
-    L.filter((a) => Promise.resolve(a % 2)),
-    reduce(add),
-    log
-  );
+  //   go(
+  //     [1, 2, 3, 4, 5],
+  //     L.map((a) => Promise.resolve(a * a)),
+  //     L.filter((a) => Promise.resolve(a % 2)),
+  //     reduce(add),
+  //     log
+  //   );
 </script>
 
-<script></script>
+<script>
+  go(
+    [1, 2, 3, 4, 5, 6, 7, 8],
+    L.map((a) => {
+      log(a);
+      return new Promise((resolve) => setTimeout(() => resolve(a * a), 1000));
+    }),
+    L.filter((a) => {
+      log(a);
+      return new Promise((resolve) => setTimeout(() => resolve(a % 2), 1000));
+    }),
+    take(2),
+    // reduce(add),
+    log
+  ); // 모든 상태를 다 보는 것이 아닌 필요한 상태만 주시하는 것이기때문에
+  // 비동기 상황에서 더 빠르게 동작할 수 있다는 점이 장점이다
+</script>
