@@ -3,14 +3,32 @@
 ## 지연된 함수열을 병렬적으로 평가하기 - C.reduce, C.take
 
 <script>
+  //C = concurrency(동시성)
+  const C = {};
+  C.reduce = curry((f, acc, iter) =>
+    iter ? reduce(f, acc, [...iter]) : reduce(f, [...acc])
+  );
+
+  const delay1000 = (a) =>
+    new Promise((resolve) => {
+      console.log("hi~");
+      setTimeout(() => resolve(a), 1000);
+    });
+
+  go(
+    [1, 2, 3, 4, 5],
+    L.map((a) => delay1000(a * a)),
+    L.filter((a) => a % 2),
+    C.reduce(add), // 동시에 출발하는 reduce를 만들어보자
+    // (부하는 생길 수 있지만, 빠른 결과의 도출이 가능하다)
+    log
+  );
 </script>
 
 ## 즉시 병렬적으로 평가하기 - C.map, C.filter
 
-<script>
-</script>
+<script></script>
 
 ## 즉시, 지연, Promise, 병렬적 조합하기
 
-<script>
-</script>
+<script></script>

@@ -17,7 +17,7 @@ const reduceF = (acc, a, f) =>
 
 const head = (iter) =>
   go1(take(1, iter), ([h]) => {
-    log(h);
+    // log(h);
     return h;
   }); // 헤드를 뽑아주는 작업
 
