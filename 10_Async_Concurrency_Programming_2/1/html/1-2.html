@@ -5,9 +5,25 @@
 <script>
   //C = concurrency(동시성)
   const C = {};
-  C.reduce = curry((f, acc, iter) =>
-    iter ? reduce(f, acc, [...iter]) : reduce(f, [...acc])
+  function noop() {} // 아무 일도 하지 않는 함수
+  const catchNoop = (arr) => (
+    arr.forEach((a) => (a instanceof Promise ? a.catch(noop) : a)), arr
   );
+
+  //   C.reduce = curry((f, acc, iter) => {
+  //     // 미리 캐치를 해두는 작업을 해준다
+  //     const iter2 = iter ? [...iter] : [...acc];
+  //     iter2.forEach((a) => a.catch(noop));
+  //     return iter ? reduce(f, acc, iter2) : reduce(f, iter2);
+  //   });
+
+  C.reduce = curry((f, acc, iter) => {
+    // 미리 캐치를 해두는 작업을 해준다
+    const iter2 = catchNoop(iter ? [...iter] : [...acc]);
+    return iter ? reduce(f, acc, iter2) : reduce(f, iter2);
+  });
+
+  C.take = curry((l, iter) => take(l, catchNoop([...iter])));
 
   const delay1000 = (a) =>
     new Promise((resolve) => {
@@ -15,14 +31,43 @@
       setTimeout(() => resolve(a), 1000);
     });
 
+  //   go(
+  //     [1, 2, 3, 4, 5],
+  //     L.map((a) => delay1000(a * a)),
+  //     L.filter((a) => a % 2),
+  //     C.reduce(add), // 동시에 출발하는 reduce를 만들어보자
+  //     // (부하는 생길 수 있지만, 빠른 결과의 도출이 가능하다)
+  //     log
+  //   );
+
   go(
-    [1, 2, 3, 4, 5],
+    [1, 2, 3, 4, 5, 6, 7, 8, 9],
     L.map((a) => delay1000(a * a)),
-    L.filter((a) => a % 2),
-    C.reduce(add), // 동시에 출발하는 reduce를 만들어보자
-    // (부하는 생길 수 있지만, 빠른 결과의 도출이 가능하다)
+    L.filter((a) => delay1000(a % 2)),
+    L.map((a) => delay1000(a * a)),
+    C.reduce(add),
     log
   );
+  // 평가된 값에는 문제가 없지만, nop 에러가 발생한다 => Promise.reject로 평가된 값이 출력되는 것
+
+  // var a = Promise.reject("hi");
+  // a = a.catch((a) => a);
+  // =
+  // var a = Promise.reject("hi").catch((a) => a); 이미 캐치까지 한 Promise => 이후에 catch를 또 할 수 없다
+
+  // var a = Promise.reject("hi");
+  // a.catch((a) => a); 에러가 나타나지만 않게 막아둔다 => 아직 캐치하지 않은 Promise => 이후에 catch를 다시 할 수 있다
+
+  // take 함수 추가
+  //   go(
+  //     [1, 2, 3, 4, 5, 6, 7, 8, 9],
+  //     L.map((a) => delay1000(a * a)),
+  //     L.filter((a) => delay1000(a % 2)),
+  //     L.map((a) => delay1000(a * a)),
+  //     C.take(2),
+  //     reduce(add),
+  //     log
+  //   );
 </script>
 
 ## 즉시 병렬적으로 평가하기 - C.map, C.filter
