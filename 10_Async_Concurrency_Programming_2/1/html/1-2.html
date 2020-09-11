@@ -6,7 +6,7 @@
   //C = concurrency(동시성)
   const C = {};
   function noop() {} // 아무 일도 하지 않는 함수
-  const catchNoop = (arr) => (
+  const catchNoop = ([...arr]) => (
     arr.forEach((a) => (a instanceof Promise ? a.catch(noop) : a)), arr
   );
 
@@ -17,13 +17,22 @@
   //     return iter ? reduce(f, acc, iter2) : reduce(f, iter2);
   //   });
 
-  C.reduce = curry((f, acc, iter) => {
-    // 미리 캐치를 해두는 작업을 해준다
-    const iter2 = catchNoop(iter ? [...iter] : [...acc]);
-    return iter ? reduce(f, acc, iter2) : reduce(f, iter2);
-  });
+  // C.reduce = curry((f, acc, iter) => {
+  //   // 미리 캐치를 해두는 작업을 해준다
+  //   const iter2 = catchNoop(iter ? [...iter] : [...acc]);
+  //   return iter ? reduce(f, acc, iter2) : reduce(f, iter2);
+  // });
 
-  C.take = curry((l, iter) => take(l, catchNoop([...iter])));
+  // 좀 더 간결한 reduce
+  C.reduce = curry((f, acc, iter) =>
+    iter ? reduce(f, acc, catchNoop(iter)) : reduce(f, catchNoop(acc))
+  );
+
+  C.reduce = curry((f, acc, iter) =>
+    reduce(f, iter ? [acc, catchNoop(iter)] : reduce([catchNoop(acc)]))
+  );
+
+  C.take = curry((l, iter) => take(l, catchNoop(iter)));
 
   C.takeAll = C.take(Infinity);
 
