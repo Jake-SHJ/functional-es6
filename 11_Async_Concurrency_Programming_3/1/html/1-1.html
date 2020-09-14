@@ -24,18 +24,59 @@
     // log(a + b); 내부에선 값을 볼 수 있음
     return a + b;
   }
-  log(f1()); // Promise return , 외부에선 Promise로 밖에 볼 수 없음
-  f1().then(log); // 이렇게 하면 값을 볼 수 있음
-  go(f1(), log); // 이렇게 하면 값을 볼 수 있음
+  // log(f1()); // Promise return , 외부에선 Promise로 밖에 볼 수 없음
+  // f1().then(log); // 이렇게 하면 값을 볼 수 있음
+  // go(f1(), log); // 이렇게 하면 값을 볼 수 있음
 
-  (async () => {
-    log(await f1());
-  })(); // 이렇게도 볼 수 있음
+  // (async () => {
+  //   log(await f1());
+  // })(); // 이렇게도 볼 수 있음
 </script>
 
 ## QnA. Array.prototype.map이 있는데 왜 FxJS의 map 함수가 필요한지?
 
-<script></script>
+<script>
+  async function delayI(a) {
+    return new Promise((resolve) => setTimeout(() => resolve(a), 100));
+  }
+
+  async function f2() {
+    const list = [1, 2, 3, 4];
+    const temp = list.map(async (a) => await delayI(a * a));
+    log(temp); // Promise가 들어있는 Array
+    const res = await temp;
+    log(res);
+    // async await 처리를 아무리 해도 Promise를 제어할 수 없는 상태이기 때문에 Promise가 반환된다.
+    // 함수 자체가 Promise를 제어할 수 있어야 한다
+  }
+  f2();
+
+  async function f3() {
+    const list = [1, 2, 3, 4];
+    const temp = map((a) => delayI(a * a), list);
+    log(temp); // resolve 된 값이 들어있는 Array
+    const res = await temp;
+    log(res);
+  }
+  f3();
+
+  // async function f4() {
+  //   const list = [1, 2, 3, 4];
+  //   const res = await map((a) => delayI(a * a), list);
+  //   // log(res); 풀린 값이 옴
+  //   return res;
+  // }
+
+  function f4() {
+    return map((a) => delayI(a * a), [1, 2, 3, 4]);
+  } // await로 풀어서 전달하나 그대로 전달하나 Promise가 반환되므로 async/await 키워드가 필요없다
+
+  log(f4()); // log(res)의 값이 아닌 Promise가 옴
+
+  (async () => {
+    log(await f4());
+  })();
+</script>
 
 ## QnA. 이제 비동기는 async/await로 제어할 수 있는데 왜 파이프라인이 필요한지?
 
