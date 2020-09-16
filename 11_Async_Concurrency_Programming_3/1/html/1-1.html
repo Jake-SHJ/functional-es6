@@ -80,7 +80,30 @@
 
 ## QnA. 이제 비동기는 async/await로 제어할 수 있는데 왜 파이프라인이 필요한지?
 
-<script></script>
+<script>
+  // async/await가 해결하고자 하는 문제와 파이프라인, 혹은 체이닝이 해결하고자 하는 문제는 서로 전혀 다름
+
+  // async/await 가 해결하고자 하는 문제
+  // Promise.then.then이 작성이 어려우므로 문장으로 다루기 위함. 함수 체인이 아닌 문장형을 위함
+
+  // 파이프라인, 체이닝이 해결하고자 하는 문제
+  // 명령형 프로그래밍을 하지 않고 더 안전하게 함수를 합성하기 위함. 비동기가 목적이 아님
+
+  // => 서로 비교 대상이 아니다
+
+  function f5() {
+    return go(
+      [1, 2, 3, 4, 5, 6, 7, 8],
+      L.map((a) => delayI(a * a)),
+      L.filter((a) => delayI(a % 2)),
+      L.map((a) => delayI(a + 1)),
+      take(2),
+      reduce((a, (b) => delayI(a + b)))
+    );
+  }
+
+  function f6() {}
+</script>
 
 ## QnA. async/await와 파이프라인을 같이 사용하기도 하나요?
 
