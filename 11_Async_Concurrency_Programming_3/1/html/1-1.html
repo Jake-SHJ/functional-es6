@@ -136,7 +136,30 @@
 
 ## QnA. async/await와 파이프라인을 같이 사용하기도 하나요?
 
-<script></script>
+<script>
+  // 같이 사용할 때 장점이 더 많다
+  async function f52(list) {
+    const r1 = await go(
+      list,
+      L.map((a) => delayI(a * a)),
+      L.filter((a) => delayI(a % 2)),
+      L.map((a) => delayI(a + 1)),
+      C.take(2),
+      reduce((a, b) => delayI(a + b))
+    );
+
+    const r2 = await go(
+      list,
+      L.map((a) => delayI(a * a)),
+      L.filter((a) => delayI(a % 2)),
+      reduce((a, b) => delayI(a + b))
+    );
+
+    const r3 = await delayI(r1 + r2);
+    return r3 + 10;
+  }
+  go(f52([1, 2, 3, 4, 5, 6, 7, 8]), (a) => log(a, "f52"));
+</script>
 
 ## QnA. 동기 상황에서 에러 핸들링은 어떻게 해야하는지?
 
