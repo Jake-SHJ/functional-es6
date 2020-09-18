@@ -209,4 +209,61 @@
 
 ## QnA. 동기/비동기 에러 핸들링에서의 파이프라인의 이점은?
 
-<script></script>
+<script>
+  function f9(list) {
+    try {
+      return go(
+        list,
+        map(
+          (a) =>
+            new Promise((resolve) => {
+              dfadfadg;
+              resolve(JSON.parse(a));
+            })
+        ),
+        filter((a) => a % 2),
+        take(2)
+      );
+    } catch (e) {
+      log(e);
+      return [];
+    }
+  }
+
+  f9(["1", "2", "3", "{"])
+    .then(log)
+    .catch((e) => {
+      log("에러 핸들링 하겠다.", e);
+    }); // 여기서 핸들링
+
+  async function f10(list) {
+    try {
+      return await go(
+        list,
+        map(
+          (a) =>
+            new Promise((resolve) => {
+              dfadfadg;
+              resolve(JSON.parse(a));
+            })
+        ),
+        filter((a) => a % 2),
+        take(2)
+      ); // go 에서 처리되는 값이 Promise이기 때문에 가능
+    } catch (e) {
+      log(e, "--------"); // 이건 여기서 핸들링
+      return [];
+    }
+  }
+
+  // 에러 핸들링을 할 때느 await에 Promise를 잘 걸어줘야 하고,
+  // 그러기 위해선 함수 내부의 에러가 중간에 발생하여도 Kleisli 방식으로 안전하게 합성하여
+  // 뒤로 연결해서 보낼 수 있도록 준비가 되어있어야 안전한 핸들링을 가능하게 한다
+  // 이것이 pipeline의 이점, 동기적인 상황에서 에러가 발생하여도 안전한 핸들링이 가능하다
+
+  f10(["1", "2", "3", "4", "{"])
+    .then((a) => log(a, "f10"))
+    .catch((e) => {
+      log("에러 핸들링 하겠다.", e);
+    });
+</script>
